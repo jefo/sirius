@@ -1,5 +1,12 @@
 <script>
+	import { onMount } from 'svelte';
 	import Tailwindcss from './Tailwindcss.svelte';
+	import { Client } from '@mathieuc/tradingview';
+
+	onMount(() => {
+
+	});
+		
 
 	export let name;
 </script>
