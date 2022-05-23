@@ -1,5 +1,5 @@
 <template>
-<trading-vue :data="this.$data.chart"></trading-vue>
+<trading-vue titleTxt="BTCUSDT" :data="this.$data.chart"></trading-vue>
 </template>
 <script>
 
@@ -12,7 +12,7 @@ const chart = new DataCube({
             // [timestamp, open, high, low, close, volume]
         ]
     }, onchart: [], offchart: []
-});
+}, { aggregation: 100 });
 
 export default {
     name: 'TwChart',
@@ -55,7 +55,7 @@ export default {
                 return;
             }
             // console.log('this.data', data);
-            console.log('data', [data.k.t, parseFloat(data.k.o), parseFloat(data.k.h), parseFloat(data.k.l), parseFloat(data.k.c)]);
+            // console.log('data', [data.k.t, parseFloat(data.k.o), parseFloat(data.k.h), parseFloat(data.k.l), parseFloat(data.k.c)]);
             chart.merge('chart.data', [
                 // [timestamp, open, high, low, close, volume]
                 [data.k.t, parseFloat(data.k.o), parseFloat(data.k.h), parseFloat(data.k.l), parseFloat(data.k.c)]
