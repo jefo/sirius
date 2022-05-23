@@ -1,26 +1,42 @@
 <template>
-<trading-vue :data="this.$data"></trading-vue>
+<trading-vue :data="this.$data.chart"></trading-vue>
 </template>
 <script>
 
-import TradingVue from 'trading-vue-js'
+// import flattenDeep from 'lodash.flattendeep';
+import { TradingVue, DataCube } from 'trading-vue-js'
+
+const chart = new DataCube({
+    chart: {
+        data: [
+            // [timestamp, open, high, low, close, volume]
+        ]
+    }, onchart: [], offchart: []
+});
 
 export default {
     name: 'TwChart',
     components: { TradingVue },
     data() {
         return {
-            ohlcv: [
-                [ 1551128400000, 33,  37.1, 14,  14,  196 ],
-                [ 1551132000000, 13.7, 30, 6.6,  30,  206 ],
-                [ 1551135600000, 29.9, 33, 21.3, 21.8, 74 ],
-                [ 1551139200000, 21.7, 25.9, 18, 24,  140 ],
-                [ 1551142800000, 24.1, 24.1, 24, 24.1, 29 ],
-            ]
+            chart,
         }
     },
     created: function() {
         // wss://stream.binance.com:9443/
+        fetch(
+            "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=15m&limit=200"
+        )
+        .then((response) => response.json())
+        .then((commits) => {
+            console.log('commits', commits);
+            // console.log(commits.map(e => parseFloat(e)));
+            chart.set('chart.data', commits.map(e => e.map(d => parseFloat(d)).slice(0, 6)));
+            // // chart.set('chart.data', [
+            // //     commits.t, parseFloat(commits.k.o), parseFloat(commits.k.h), parseFloat(commits.k.l), parseFloat(commits.k.c)
+            // // ]);
+        });
+
         console.log('this.$socket', this.$socket);
         console.log('this.$options.sockets', this.$options.sockets);
         this.$socket.onopen = () => {
@@ -33,8 +49,22 @@ export default {
                 "id": 1
             }))
         }
-        this.$options.sockets.onmessage = function(data) {
-            console.log(JSON.parse(data.data));
+        this.$options.sockets.onmessage = (msg) => {
+            const data = JSON.parse(msg.data);
+            if (data.e !== 'kline') {
+                return;
+            }
+            // console.log('this.data', data);
+            console.log('data', [data.k.t, parseFloat(data.k.o), parseFloat(data.k.h), parseFloat(data.k.l), parseFloat(data.k.c)]);
+            chart.merge('chart.data', [
+                // [timestamp, open, high, low, close, volume]
+                [data.k.t, parseFloat(data.k.o), parseFloat(data.k.h), parseFloat(data.k.l), parseFloat(data.k.c)]
+            ])
+
+            // this.data.chart.merge('chart.data', [
+            //     // [data.]
+            // ])
+            // console.log('data', data);
         }
   }
 }
