@@ -12,19 +12,14 @@ chart.setMarket('BINANCE:LTCUSDT', {
 	range: 10000
 });
 
-let strategyReport = null;
+let reports = {};
 
 const strategies = {
 	ltc: 'u0g29q1aazjckerih5zl5vtdr0yawkqz'
 };
 
-router.get('/index', () => {
-	console.log('index');
-});
-
-router.get('/:name', function(req, res, next) {
-  console.log('loading', req.params.name);
-	TradingView.getPrivateIndicators(strategies[req.params.name])
+Object.keys(strategies).forEach((key) => {
+	TradingView.getPrivateIndicators(strategies[key])
 		.catch((e) => {
 			console.error(e);
 			res.sendStatus(400);
@@ -34,7 +29,6 @@ router.get('/:name', function(req, res, next) {
 		})
 		.then((indicList) => {
 			indicList.forEach(async (indic) => {
-				// console.log('Loading indicator', indic);
 				if (indic.name === 'Technical Ratings DCA Bot Strategy v.1.2 LTC') {
 					const str = await TradingView.getIndicator(indic.id);
 					const indicator = new chart.Study(str);
@@ -42,13 +36,26 @@ router.get('/:name', function(req, res, next) {
 						console.log('Indicator', indic.name, 'loaded !');
 					});
 					indicator.onUpdate(() => {
-						strategyReport = indicator.strategyReport;
-						// console.log('Plot values', indicator.periods);
-            res.json(strategyReport);
+						reports[key] = indicator.strategyReport;
+						console.log(`Strategy ${key} is ready`);
 					});
 				}
 			});
 		});
+});
+
+router.get('/index', () => {
+	console.log('index');
+});
+
+// todo: ANTISPAM PROTECTION BRUTFORCE ALARM!!!111
+router.get('/:name', function(req, res, next) {
+	if (!reports[req.params.name]) {
+		res.status(400);
+		res.send('Data not initialized yet. Trt later');
+	} else {
+		res.json(reports[req.params.name]);
+	}
 });
 
 module.exports = router;
