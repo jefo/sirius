@@ -44,9 +44,7 @@ router.get('/:name', function(req, res, next) {
 					indicator.onUpdate(() => {
 						strategyReport = indicator.strategyReport;
 						// console.log('Plot values', indicator.periods);
-						console.log('Strategy report', indicator.strategyReport);
             res.json(strategyReport);
-            next();
 					});
 				}
 			});

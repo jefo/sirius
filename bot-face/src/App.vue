@@ -3,44 +3,40 @@
     <md-app>
       <md-app-toolbar class="md-primary">
         <span class="md-title">My Title</span>
-      </md-app-toolbar>5 
+      </md-app-toolbar>
       <md-app-content>
         <div class="md-layout md-gutter md-alignment-center">
            <div>
-             <Chart />
+              <Chart />
               <md-tabs class="md-transparent" md-alignment="fixed">
-                <md-tab id="tab-home" md-label="Overview"></md-tab>
-                <md-tab id="tab-pages" md-label="Performance Summary"></md-tab>
-                <md-tab id="tab-posts" md-label="List of Trades"></md-tab>
+                <md-tab id="tab-overview" md-label="Overview"></md-tab>
+                <md-tab id="tab-summary" md-label="Performance Summary"></md-tab>
+                <md-tab id="tab-list-of-trades" md-label="List of Trades"></md-tab>
               </md-tabs>
               <md-table>
                 <md-table-row>
-                  <md-table-head md-numeric>ID</md-table-head>
-                  <md-table-head>Name</md-table-head>
-                  <md-table-head>Email</md-table-head>
-                  <md-table-head>Gender</md-table-head>
-                  <md-table-head>Job Title</md-table-head>
+                  <md-table-head></md-table-head>
+                  <md-table-head>All</md-table-head>
+                  <md-table-head>Long</md-table-head>
+                  <md-table-head>Short</md-table-head>
                 </md-table-row>
                 <md-table-row>
-                  <md-table-cell md-numeric>1</md-table-cell>
-                  <md-table-cell>Shawna Dubbin</md-table-cell>
-                  <md-table-cell>sdubbin0@geocities.com</md-table-cell>
-                  <md-table-cell>Male</md-table-cell>
-                  <md-table-cell>Assistant Media Planner</md-table-cell>
+                  <md-table-head>Net Profit</md-table-head>
+                  <md-table-cell>{{performance.all.netProfit}}</md-table-cell>
+                  <md-table-cell>{{performance.long.netProfit}}</md-table-cell>
+                  <md-table-cell>{{performance.short.netProfit}}</md-table-cell>
                 </md-table-row>
                 <md-table-row>
-                  <md-table-cell md-numeric>2</md-table-cell>
-                  <md-table-cell>Odette Demageard</md-table-cell>
-                  <md-table-cell>odemageard1@spotify.com</md-table-cell>
-                  <md-table-cell>Female</md-table-cell>
-                  <md-table-cell>Account Coordinator</md-table-cell>
+                  <md-table-head>Profit Factor</md-table-head>
+                  <md-table-cell>{{performance.all.profitFactor}}</md-table-cell>
+                  <md-table-cell>{{performance.long.profitFactor}}</md-table-cell>
+                  <md-table-cell>{{performance.short.profitFactor}}</md-table-cell>
                 </md-table-row>
                 <md-table-row>
-                  <md-table-cell md-numeric>3</md-table-cell>
-                  <md-table-cell>Vera Taleworth</md-table-cell>
-                  <md-table-cell>vtaleworth2@google.ca</md-table-cell>
-                  <md-table-cell>Male</md-table-cell>
-                  <md-table-cell>Community Outreach Specialist</md-table-cell>
+                  <md-table-head>Percent Profitable</md-table-head>
+                  <md-table-cell>{{performance.all.percentProfitable}}</md-table-cell>
+                  <md-table-cell>{{performance.long.percentProfitable}}</md-table-cell>
+                  <md-table-cell>{{performance.short.percentProfitable}}</md-table-cell>
                 </md-table-row>
             </md-table>
            </div>
@@ -52,11 +48,38 @@
 
 <script>
 import Chart from './components/Chart.vue'
+import axios from 'axios';
 
 export default {
   name: 'App',
   components: {
     Chart
+  },
+  data () {
+    return {
+      performance: {
+        all: {
+          netProfit: 0,
+          profitFactor: 0,
+          percentProfitable: 0,
+        },
+        long: {
+          netProfit: 0,
+          profitFactor: 0,
+          percentProfitable: 0,
+        },
+        short: {
+          netProfit: 0,
+          profitFactor: 0,
+          percentProfitable: 0,
+        },
+      }
+    }
+  },
+  created() {
+    axios.get('http://localhost:3000/ltc').then((resp) => {
+        this.performance = resp.data.performance;
+    });
   }
 }
 </script>
