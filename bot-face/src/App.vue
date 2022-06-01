@@ -13,32 +13,8 @@
                 <md-tab id="tab-summary" md-label="Performance Summary"></md-tab>
                 <md-tab id="tab-list-of-trades" md-label="List of Trades"></md-tab>
               </md-tabs>
-              <md-table>
-                <md-table-row>
-                  <md-table-head></md-table-head>
-                  <md-table-head>All</md-table-head>
-                  <md-table-head>Long</md-table-head>
-                  <md-table-head>Short</md-table-head>
-                </md-table-row>
-                <md-table-row>
-                  <md-table-head>Net Profit</md-table-head>
-                  <md-table-cell>{{performance.all.netProfit}}</md-table-cell>
-                  <md-table-cell>{{performance.long.netProfit}}</md-table-cell>
-                  <md-table-cell>{{performance.short.netProfit}}</md-table-cell>
-                </md-table-row>
-                <md-table-row>
-                  <md-table-head>Profit Factor</md-table-head>
-                  <md-table-cell>{{performance.all.profitFactor}}</md-table-cell>
-                  <md-table-cell>{{performance.long.profitFactor}}</md-table-cell>
-                  <md-table-cell>{{performance.short.profitFactor}}</md-table-cell>
-                </md-table-row>
-                <md-table-row>
-                  <md-table-head>Percent Profitable</md-table-head>
-                  <md-table-cell>{{performance.all.percentProfitable}}</md-table-cell>
-                  <md-table-cell>{{performance.long.percentProfitable}}</md-table-cell>
-                  <md-table-cell>{{performance.short.percentProfitable}}</md-table-cell>
-                </md-table-row>
-            </md-table>
+              <PerformanceSummary :all="performance.all" :long="performance.long" :short="performance.short" />
+              <!-- <ListOfTrades :trades="trades" /> -->
            </div>
         </div>
       </md-app-content>
@@ -48,15 +24,20 @@
 
 <script>
 import Chart from './components/Chart.vue'
+import PerformanceSummary from './components/PerformanceSummary.vue'
+// import ListOfTrades from './components/ListOfTrades.vue'
 import axios from 'axios';
 
 export default {
   name: 'App',
   components: {
-    Chart
+    Chart,
+    PerformanceSummary,
+    // ListOfTrades
   },
   data () {
     return {
+      currentTab: 'tab-overview',
       performance: {
         all: {
           netProfit: 0,
@@ -79,6 +60,9 @@ export default {
   created() {
     axios.get('http://localhost:3000/ltc').then((resp) => {
         this.performance = resp.data.performance;
+        this.trades = resp.data.trades;
+        console.log('this.performance', resp.data);
+        console.log('this.trades', this.trades);
     });
   }
 }
