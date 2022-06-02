@@ -40,7 +40,15 @@
     "parserOptions": {
       "parser": "@babel/eslint-parser"
     },
-    "rules": {}
+    "rules": {
+      "no-unused-vars": "off",
+      "no-redeclare": "off",
+      "no-case-declarations": "off",
+      "no-unexpected-multiline": "off",
+      "no-useless-escape": "off",
+      "no-undef": "off",
+      "no-constant-condition": "off"
+    }
   },
   "browserslist": [
     "> 1%",

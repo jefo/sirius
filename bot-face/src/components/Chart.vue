@@ -13,9 +13,25 @@ const chart = new DataCube({
             // [timestamp, open, high, low, close, volume]
         ]
     }, onchart: [{
-        name: 'LongShortTrades',
-        type: 'LongShortTrades',
-        data: [],
+        name: 'TradesPlus',
+        type: 'TradesPlus',
+        data: [
+            // [1650123900000, 1, 111.8, "L"],
+            // [1650261600000, 1, 106.2, "X"],
+
+            // [
+			// 	1654004700000,
+			// 	1,
+			// 	67,
+			// 	"L"
+			// ],
+			// [
+			// 	1654073108492,
+			// 	0,
+			// 	67.9,
+			// 	"Stop"
+			// ],
+        ],
         settings: {}
     }], offchart: []
 }, { aggregation: 100 });
@@ -26,29 +42,12 @@ export default {
     data() {
         return {
             chart,
-            overlays: [Overlays['LongShortTrades']],
+            overlays: [Overlays['TradesPlus']],
             tradesOverlayData: [],
         }
     },
     props: ['trades'],
     created: function() {
-        if (this.trades) {
-            this.trades.forEach(t => {
-                this.tradesOverlayData.push([
-                    t.entry.time,
-                    t.entry.type === 'long' ? 1 : 0,
-                    "",
-                    "",
-                    0, // open,
-                    0, // high
-                    0, // low
-                    0, // close
-                ]);
-            })
-            // this.tradesOverlayData = this.trades.map(t => ({
-
-            // }))
-        }
         // wss://stream.binance.com:9443/
         fetch(
             "https://api.binance.com/api/v3/klines?symbol=LTCUSDT&interval=15m&limit=200"
@@ -68,7 +67,7 @@ export default {
             }));
         }
         this.$options.sockets.onmessage = (msg) => {
-            const data = JSON.parse(msg.data);
+            let data = JSON.parse(msg.data);
             if (data.e !== 'kline') {
                 return;
             }
@@ -76,6 +75,41 @@ export default {
                 // [timestamp, open, high, low, close, volume]
                 [data.k.t, parseFloat(data.k.o), parseFloat(data.k.h), parseFloat(data.k.l), parseFloat(data.k.c)]
             ]);
+
+            data = chart.get('chart.data');
+            if (this.trades) {
+                console.log('this.trades', this.trades);
+                let trades = [];
+                this.trades.slice(0, 5).forEach((t) => {
+                    trades.push(                    [
+                            t.entry.time,
+                            t.entry.type === 'long' ? 1 : 0,
+                            t.entry.value,
+                            "L",
+                        ],
+                        [
+                            t.exit.time,
+                            t.exit.type === 'long' ? 0 : 1,
+                            t.exit.value,
+                            "X",
+                        ]);
+                });
+                // console.log('[trades]', [trades]);
+                chart.set('onchart.data', [
+                    [
+                        1654004700000,
+                        1,
+                        67,
+                        "L"
+                    ],
+                    [
+                        1654073108492,
+                        0,
+                        67.9,
+                        "Stop"
+                    ],
+                ])
+            }
         }
   }
 }
